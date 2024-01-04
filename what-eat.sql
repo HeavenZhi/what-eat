@@ -1,3 +1,9 @@
+--
+-- Copyright 2024 HeavenZhi. All rights reserved.
+-- Use of this source code is governed by a MIT style
+-- license that can be found in the LICENSE file.
+--
+
 -- MySQL dump 10.13  Distrib 8.0.18, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: what_eat
