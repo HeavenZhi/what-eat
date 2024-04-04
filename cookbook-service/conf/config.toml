@@ -1,0 +1,51 @@
+##
+### Copyright 2024 HeavenZhi. All rights reserved.
+### Use of this source code is governed by a MIT style
+### license that can be found in the LICENSE file.
+##
+
+# 项目配置
+name = "cookbook-service"
+mode = "dev"
+version = "v0.0.1"
+ip = "127.0.0.1"
+port = 8081
+start_time = "2024-01-28"
+machine_id = 1
+
+# 日志配置
+[log]
+level = "debug"
+#日志文件的保存位置
+filename = "cookbook_service.log"
+#Error 日志文件的单独保存位置
+error_filename = "cookbook_service_error.log"
+#日志文件在进行切割之前，日志文件的最大大小（以 MB 为单位）
+max_size = 200
+#保留旧文件的最大天数
+max_age = 30
+#保留旧文件的最大个数
+max_backups = 7
+
+# MySQL 配置
+[mysql]
+user = "root"
+password = "wawwbb1997"
+host = "127.0.0.1"
+port = 3306
+dbname = "whateat_cookbook"
+max_open_conns = 100
+max_idle_conns = 10
+
+# Redis 配置
+[redis]
+password = ""
+host = "127.0.0.1"
+port = 6379
+db = 0
+pool_size = 100
+min_idle_conns = 0
+
+# Consul 配置
+[consul]
+addr = "127.0.0.1:8500"

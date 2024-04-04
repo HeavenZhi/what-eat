@@ -1,0 +1,307 @@
+/*
+	Copyright 2024 HeavenZhi. All rights reserved.
+	Use of this source code is governed by a MIT style
+	license that can be found in the LICENSE file.
+*/
+
+// 指定的当前 proto 语法版本，有 proto2 和 proto3 之分，不填默认为 proto2
+syntax="proto3";
+
+// option go_package = "Go文件存放路径;Go文件所属的包名";
+//  Go文件存放路径表示：生成的 Go 文件的存放地址，会自动生成目录
+//  Go文件所属的包名表示：生成的 Go 文件所属的包名（若不配置，默认使用 path 的最后路径作为包名）
+option go_package="github.com/HeavenZhi/what-eat/cookbook-service/api;pb";
+
+// 指定 proto 文件的命名空间，一个 proto 文件就是一个 package，用于防止 message 重名
+// 同时在 import 其他 proto 文件时，需要使用其内部定义 package 名，通过 package_name.message 来调用其定义的 message
+package pb;
+
+// 导入其他 proto 文件，需从项目根目录导入，方便后续使用 protoc 编译时直接 -I 项目根目录
+import "google/protobuf/empty.proto";// protobuf 自带，配置好了 protobuf 之后直接引用就行
+import "common-service/pkg/proto/google/api/annotations.proto";
+
+/*--------------------------------------------------------------Cookbook Request--------------------------------------------------------------*/
+
+//菜谱的请求体
+message CookbookRequest{
+	//菜谱表唯一键
+	string sid=1;
+	//菜名
+	string name=2;
+	//菜谱图片地址
+	string image_address=3;
+	//是否为荤菜
+	bool is_meat=4;
+	//该菜品特色
+	string feature=5;
+	//具体烹饪方法总览
+	string cooking_methods=6;
+
+	// cuisine 表的 sid 外键
+	string cuisine_sid=7;
+	// dishes_type 表的 sid 外键
+	string dt_sid=8;
+
+	//食材的请求体
+	message CookbookIngredientRequest{
+		//菜谱和食材对照表唯一键
+		string sid=1;
+		//食材用量
+		string quantity=2;
+		//食材类型：ingredient 表的 sid 外键
+		string i_sid=3;
+	}
+
+	//食材的列表
+	repeated CookbookIngredientRequest cookbook_ingredient_list=9;
+
+	//菜谱制作步骤的请求体
+	message CookbookCookingRequest{
+		//菜品详情和操作流程对应表唯一键
+		string sid=1;
+		//菜谱图片地址
+		string image_address=2;
+		//食材处理描述
+		string description=3;
+		//制作步骤的类型：cooking_health 表的 sid 外键
+		string ch_sid=4;
+	}
+
+	//菜谱制作步骤的列表
+	repeated CookbookCookingRequest cookbook_cooking_list=10;
+}
+
+//根据菜谱的Sid查找菜谱的请求体
+message CookbookBySidRequest{
+    //菜谱表唯一键
+	string sid=1;
+}
+
+/*--------------------------------------------------------------Cookbook Response--------------------------------------------------------------*/
+
+//布尔响应体
+message BooleanResponse{
+    bool boolean=1;
+}
+
+//获取菜谱的响应体
+message GetCookbookResponse{
+    //菜谱表唯一键
+	string sid=1;
+	//菜名
+	string name=2;
+	//菜谱图片地址
+	string image_address=3;
+	//是否为荤菜
+	bool is_meat=4;
+	//该菜品特色
+	string feature=5;
+	//具体烹饪方法总览
+	string cooking_methods=6;
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float process_difficulty=7;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float health=8;
+
+	// cuisine 表的 sid 外键
+	string cuisine_sid=9;
+	// cuisine 表的 name
+	string cuisine_name=10;
+	// dishes_type 表的 sid 外键
+	string dt_sid=11;
+	// dishes_type 表的 name
+	string dt_name=12;
+	//User模块的user表的sid外键
+	string user_sid=13;
+	//User模块的user表的name
+	string user_name=14;
+
+	//获取食材的响应体
+	message GetCookbookIngredientResponse{
+		//菜谱和食材对照表唯一键
+		string sid=1;
+		//食材用量
+		string quantity=2;
+		//食材类型：ingredient 表的 sid 外键
+		string i_sid=3;
+		//食材类型：ingredient 表的 name
+		string i_name=4;
+	}
+
+	//食材的列表
+	repeated GetCookbookIngredientResponse cookbook_ingredient_list=15;
+
+	//获取菜谱制作步骤的响应体
+	message GetCookbookCookingResponse{
+		//菜品详情和操作流程对应表唯一键
+		string sid=1;
+		//菜谱图片地址
+		string image_address=2;
+		//食材处理描述
+		string description=3;
+		//制作步骤的类型：cooking_health 表的 sid 外键
+		string ch_sid=4;
+		//制作步骤的类型：cooking_health 表的 name
+		string ch_name=5;
+	}
+
+	//菜谱制作步骤的列表
+	repeated GetCookbookCookingResponse cookbook_cooking_list=16;
+}
+
+/*--------------------------------------------------------------CookbookList Request--------------------------------------------------------------*/
+
+//根据菜谱表的 name 批量获取菜谱列表的请求体
+message CookbookListByNameRequest{
+	//cookbook 表的 name
+	string name=1;
+}
+
+//根据 cuisine 表的 sid 批量获取菜谱列表的请求体
+message CookbookListByCuisineSidRequest{
+	//cuisine表的sid外键
+	string cuisine_sid=1;
+}
+
+//根据 dishes_type 表的 sid 批量获取菜谱列表的请求体
+message CookbookListByDtSidRequest{
+	//dishes_type表的sid外键
+	string dt_sid =1;
+}
+
+//根据 User 模块的 user 表的 sid 批量获取菜谱列表的请求体
+message CookbookListByUserSidRequest{
+	//User模块的user表的sid外键
+	string user_sid=1;
+}
+
+//根据综合条件批量获取菜谱列表的请求体
+message CookbookListByGeneralConditionsRequest{
+	//cookbook 表的 name
+	string name=1;
+	//是否为荤菜
+	bool is_meat=2;
+	//cuisine表的sid外键
+	string cuisine_sid=3;
+	//dishes_type表的sid外键
+	string dt_sid =4;
+	//User模块的user表的sid外键
+	string user_sid=5;
+	
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float process_difficulty_min=6;
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float process_difficulty_max=7;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float health_min=8;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float health_max=9;
+
+	//排序条件请求体
+	message SortCriteriaRequest{
+		//进行排序依据的字段
+		string sort_field=1;
+		//是否升序排列
+		bool is_asc=2;
+	}
+
+	//排序方式
+	SortCriteriaRequest sort_criteria=10;
+}
+
+/*--------------------------------------------------------------CookbookList Response--------------------------------------------------------------*/
+
+//菜谱列表
+message CookbookList{
+    //菜谱表唯一键
+	string sid=1;
+	//菜名
+	string name=2;
+	//菜谱图片地址
+	string image_address=3;
+	//是否为荤菜
+	bool is_meat=4;
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float process_difficulty=5;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float health=6;
+	
+	//cuisine表的name
+	string cuisine_name=7;
+	//dishes_type表的name
+	string dt_name=8;
+}
+
+//批量获取菜谱列表的响应体
+message FindCookbookListResponse{
+    //可重复字段，以此到达 List 的效果，菜谱列表
+    repeated CookbookList cookbook_list=1;
+}
+
+
+
+// CookBookServer 服务
+service Cookbook{
+    /*--------------------------------------------------------------Cookbook--------------------------------------------------------------*/
+
+	//新增菜谱
+	rpc InsertCookbook(CookbookRequest) returns(BooleanResponse){
+		option (google.api.http) = {
+			post: "/Cookbook"
+			body: "*"
+		};
+	};
+	//删除菜谱
+	rpc DeleteCookbook(CookbookBySidRequest) returns(BooleanResponse){
+		option (google.api.http) = {
+			delete: "/Cookbook/{sid}"
+		};
+	};
+	//修改菜谱
+	rpc UpdateCookbook(CookbookRequest) returns(BooleanResponse){
+		option (google.api.http) = {
+			put: "/Cookbook"
+			body: "*"
+		};
+	};
+	//根据菜谱的Sid查找菜谱
+	rpc GetCookbookBySid(CookbookBySidRequest) returns(GetCookbookResponse){
+		option (google.api.http) = {
+			get: "/Cookbook/{sid}"
+		};
+	};
+
+	/*--------------------------------------------------------------CookbookList--------------------------------------------------------------*/
+
+	//根据菜谱表的 name 批量获取菜谱列表
+	rpc FindCookbookListByName(CookbookListByNameRequest) returns(FindCookbookListResponse){
+		option (google.api.http) = {
+			get: "/CookbookListByName/{name}"
+		};
+	};
+	//根据 cuisine 表的 sid 批量获取菜谱列表
+	rpc FindCookbookListByCuisineSid(CookbookListByCuisineSidRequest) returns(FindCookbookListResponse){
+		option (google.api.http) = {
+			get: "/CookbookListByCuisineSid/{cuisine_sid}"
+		};
+	};
+	//根据 dishes_type 表的 sid 批量获取菜谱列表
+	rpc FindCookbookListByDtSid(CookbookListByDtSidRequest) returns(FindCookbookListResponse){
+		option (google.api.http) = {
+			get: "/CookbookListByDtSid/{dt_sid}"
+		};
+	};
+	//根据综合条件批量获取菜谱列表的请求体
+	rpc FindCookbookListByGeneralConditions(CookbookListByGeneralConditionsRequest) returns(FindCookbookListResponse){
+		option (google.api.http) = {
+			post: "/CookbookListByGeneralConditions"
+			body: "*"
+		};
+	};
+    //批量获取菜谱列表
+    rpc FindCookbookList(google.protobuf.Empty) returns(FindCookbookListResponse){
+		option (google.api.http) = {
+			get: "/CookbookList"
+		};
+	};
+}

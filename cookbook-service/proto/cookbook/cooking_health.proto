@@ -1,0 +1,101 @@
+/*
+	Copyright 2024 HeavenZhi. All rights reserved.
+	Use of this source code is governed by a MIT style
+	license that can be found in the LICENSE file.
+*/
+
+// 指定的当前 proto 语法版本，有 proto2 和 proto3 之分，不填默认为 proto2
+syntax="proto3";
+
+// option go_package = "Go文件存放路径;Go文件所属的包名";
+//  Go文件存放路径表示：生成的 Go 文件的存放地址，会自动生成目录
+//  Go文件所属的包名表示：生成的 Go 文件所属的包名（若不配置，默认使用 path 的最后路径作为包名）
+option go_package="github.com/HeavenZhi/what-eat/cookbook-service/api;pb";
+
+// 指定 proto 文件的命名空间，一个 proto 文件就是一个 package，用于防止 message 重名
+// 同时在 import 其他 proto 文件时，需要使用其内部定义 package 名，通过 package_name.message 来调用其定义的 message
+package pb;
+
+// 导入其他 proto 文件，需从项目根目录导入，方便后续使用 protoc 编译时直接 -I 项目根目录
+import "google/protobuf/empty.proto";// protobuf 自带，配置好了 protobuf 之后直接引用就行
+import "common-service/pkg/proto/google/api/annotations.proto";
+
+/*--------------------------------------------------------------CookingHealth Request--------------------------------------------------------------*/
+
+//烹饪难度和健康程度打分的请求体
+message CookingHealthRequest{
+    //烹饪难度和健康程度打分表唯一键
+	string sid=1;
+	//烹饪方法
+	string name=2;
+	//加分的分值,加分越多代表操作越复杂,加分越少代表操作越简单
+	float process_difficulty=3;
+	//加分的分值,加分越多代表过程越不清淡,加分越少代表过程越清淡
+	float health=4;
+}
+
+//根据烹饪难度和健康程度打分的 sid 获取烹饪难度和健康程度打分的请求体
+message CookingHealthBySidRequest{
+	string sid=1;
+}
+
+/*--------------------------------------------------------------CookingHealth Response--------------------------------------------------------------*/
+
+//布尔响应体
+message BooleanResponse{
+    bool boolean=1;
+}
+
+//获取烹饪难度和健康程度打分的响应体
+message GetCookingHealthResponse{
+    //烹饪难度和健康程度打分表唯一键
+	string sid=1;
+	//烹饪方法
+	string name=2;
+	//加分的分值,加分越多代表操作越复杂,加分越少代表操作越简单
+	float process_difficulty=3;
+	//加分的分值,加分越多代表过程越不清淡,加分越少代表过程越清淡
+	float health=4;
+}
+
+//批量获取烹饪难度和健康程度打分列表的响应体
+message FindCookingHealthListResponse{
+    //可重复字段，以此到达 List 的效果，烹饪难度和健康程度打分列表
+    repeated GetCookingHealthResponse cooking_health_list=1;
+}
+
+// CookingHealthServer 服务
+service CookingHealth{
+	//新增烹饪难度和健康程度打分
+	rpc InsertCookingHealth(CookingHealthRequest) returns(BooleanResponse){
+		option (google.api.http) = {
+			post: "/CookingHealth"
+			body: "*"
+		}
+	};
+	//删除烹饪难度和健康程度打分
+	rpc DeleteCookingHealth(CookingHealthBySidRequest) returns(BooleanResponse){
+		option (google.api.http) = {
+			delete: "/CookingHealth/{sid}"
+		}
+	};
+	//修改烹饪难度和健康程度打分
+	rpc UpdateCookingHealth(CookingHealthRequest) returns(BooleanResponse){
+		option (google.api.http) = {
+			put: "/CookingHealth"
+			body: "*"
+		}
+	};
+	//根据烹饪难度和健康程度打分表的 sid 获取烹饪难度和健康程度打分
+	rpc GetCookingHealthBySid(CookingHealthBySidRequest) returns(GetCookingHealthResponse){
+		option (google.api.http) = {
+			get: "/CookingHealth/{sid}"
+		}
+	};
+	//批量获取烹饪难度和健康程度打分列表
+	rpc FindCookingHealthList(google.protobuf.Empty) returns(FindCookingHealthListResponse){
+		option (google.api.http) = {
+			get: "/CookingHealthList"
+		}
+	};
+}

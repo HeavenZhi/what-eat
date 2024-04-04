@@ -1,0 +1,170 @@
+/*
+	Copyright 2024 HeavenZhi. All rights reserved.
+	Use of this source code is governed by a MIT style
+	license that can be found in the LICENSE file.
+*/
+
+// 指定的当前 proto 语法版本，有 proto2 和 proto3 之分，不填默认为 proto2
+syntax="proto3";
+
+// option go_package = "Go文件存放路径;Go文件所属的包名";
+//  Go文件存放路径表示：生成的 Go 文件的存放地址，会自动生成目录
+//  Go文件所属的包名表示：生成的 Go 文件所属的包名（若不配置，默认使用 path 的最后路径作为包名）
+option go_package="./;api";
+
+// 指定 proto 文件的命名空间，一个 proto 文件就是一个 package，用于防止 message 重名
+// 同时在 import 其他 proto 文件时，需要使用其内部定义 package 名，通过 package_name.message 来调用其定义的 message
+package ingredient;
+
+//导入其他 proto 文件，需从项目根目录导入，方便后续使用 protoc 编译时直接 -I 项目根目录
+import "common-service/api/proto/base.proto";
+
+/*--------------------------------------------------------------食材请求体--------------------------------------------------------------*/
+
+//新增食材的请求体
+message InsertIngredientRequest{
+	//食材名称
+	string name=1;
+	//食材图片地址
+	string image_address=2;
+	//上级id
+	string fid=3;
+	//ingredient_kind表的sid外键
+	string ik_sid=4;
+	//ingredient_type表的sid外键
+	string it_sid=5; 
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float32 process_difficulty=6;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float32 health=7;
+}
+
+//更新食材的请求体
+message UpdateIngredientRequest{
+	//食材表唯一键
+	string sid=1;
+	//食材名称
+	string name=2;
+	//食材图片地址
+	string image_address=3;
+	//上级id
+	string fid=4;
+	//ingredient_kind表的sid外键
+	string ik_sid=5;
+	//ingredient_type表的sid外键
+	string it_sid=6; 
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float32 process_difficulty=7;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float32 health=8;
+}
+
+//根据食材Sid获取食材的请求体
+message GetIngredientBySidRequest{
+	string sid=1;
+}
+
+/*--------------------------------------------------------------食材响应体--------------------------------------------------------------*/
+
+//获取食材的响应体
+message GetIngredientResponse{
+	//食材表唯一键
+	string sid=1;
+	//食材名称
+	string name=2;
+	//食材图片地址
+	string image_address=3;
+	//上级id
+	string fid=4;
+
+	//ingredient_kind表的sid外键
+	string ik_sid=5;
+	//ingredient_kind表的name
+	string ik_name=6;
+	//ingredient_type表的sid外键
+	string it_sid=7; 
+	//ingredient_type表的name
+	string it_name=8; 
+
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float32 process_difficulty=9;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float32 health=10;
+}
+
+/*--------------------------------------------------------------食材列表请求体--------------------------------------------------------------*/
+
+//根据食材的 name 批量获取食材列表的请求体
+message FindIngredientListByNameRequest{
+	//食材名称
+	string name=1;
+}
+
+//根据食材的 ik_sid 批量获取食材列表的请求体
+message FindIngredientListByIkSidRequest{
+	//ingredient_kind表的sid外键
+	string ik_sid=1;
+}
+
+//根据食材的 it_sid 批量获取食材列表的请求体
+message FindIngredientListByIkSidRequest{
+	//ingredient_type表的sid外键
+	string it_sid=1; 
+}
+
+//根据综合条件查询批量获取食材列表的请求体
+message FindIngredientListByGeneralConditionsRequest{
+	//食材名称
+	string name=1;
+	//ingredient_kind表的sid外键
+	string ik_sid=2;
+	//ingredient_type表的sid外键
+	string it_sid=3;
+	
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float32 process_difficulty_min=4;
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float32 process_difficulty_max=5;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float32 health_min=6;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float32 health_max=7;
+
+	//排序方式
+	base.SortCriteriaRequest sort_criteria=8;
+}
+
+/*--------------------------------------------------------------食材列表响应体--------------------------------------------------------------*/
+
+//布尔响应体
+message BooleanResponse{
+    bool boolean=1;
+}
+
+//食材列表
+message IngredientList{
+	//食材表唯一键
+	string sid=1;
+	//食材名称
+	string name=2;
+	//食材图片地址
+	string image_address=3;
+	//上级id
+	string fid=4;
+
+	//ingredient_kind表的sid外键
+	string ik_sid=5;
+	//ingredient_type表的sid外键
+	string it_sid=6; 
+
+	//食材处理过程分值,加分越多处理越麻烦,加分越少处理越简单
+	float32 process_difficulty=7;
+	//食材的清淡程度分值,加分越多越重口味,加分越少越清淡
+	float32 health=8;
+}
+
+//批量获取食材列表的响应体
+message FindIngredientListResponse{
+    //可重复字段，以此到达 List 的效果
+    repeated IngredientList ingredient_list=1;
+}
